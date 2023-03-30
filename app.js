@@ -1,17 +1,34 @@
 const fs=require("fs");
 const express=require('express');
+const morgan = require("morgan");
 const app=express();
 const port=3000;
+//middlewares
+app.use(morgan('dev'))
 app.use(express.json())
+app.use((req,res,next)=>
+{
+    console.log("hello from the middleware👋👋👋");
+next();
+});
+app.use((req,res,next)=>
+{
+    req.requesttime=new Date().toISOString();
+    next();
+}
+)
 const tours=JSON.parse(fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`)
 );
+//route handlers
 const getAlltours=
 (req,res)=>
  { 
+    console.log(req.requesttime);
     res.status(200).json(
         {
            stats:"sucessfull",
            result:tours.length,
+           requested_at:req.requesttime,
            data:
            {
             tours
@@ -101,17 +118,19 @@ const creteTour=(req,res)=>
   })
 };
 
-//  app.get("/api/v1/tours",getAlltours);
-//  app.get("/api/v1/tours/:id",singletour);
-//  app.patch("/api/v1/tours/:id",upadteTour);
-//  app.delete("/api/v1/tours/:id",deleteTour);
-//  app.post("/api/v1/tours",creteTour); 
+       /*app.get("/api/v1/tours",getAlltours);
+        app.get("/api/v1/tours/:id",singletour);
+        app.patch("/api/v1/tours/:id",upadteTour);
+        app.delete("/api/v1/tours/:id",deleteTour);
+     app.post("/api/v1/tours",creteTour); */
+//routes
  app.route("/api/v1/tours").
  get(getAlltours)
  .post(creteTour);
  app.route("/api/v1/tours/:id").
  patch(upadteTour).
  get(singletour).delete(deleteTour);
+ //server
 app.listen(port,()=>
 {
     console.log(`listening to the port ${port}...............`);
