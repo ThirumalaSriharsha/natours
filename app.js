@@ -3,19 +3,10 @@ const express=require('express');
 const app=express();
 const port=3000;
 app.use(express.json())
-/*app.get('/',(req,res)=>
-{
-    res.status(404).json({message :'hello from the server side',apploication :"natours"});
-});
- app.post('/',(req,res)=>
- {
-    res.send("you can post this message to the endpoint.......................");
- })*/
-
 const tours=JSON.parse(fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`)
 );
-//handling get request
- app.get("/api/v1/tours",(req,res)=>
+const getAlltours=
+(req,res)=>
  { 
     res.status(200).json(
         {
@@ -27,9 +18,8 @@ const tours=JSON.parse(fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.
            }
     });
  
- });
- //reading from the url
- app.get("/api/v1/tours/:id",(req,res)=>
+ };
+ const singletour=(req,res)=>
  {  console.log(req.params);
     const id=req.params.id*1;
     if(id>tours.length)
@@ -53,68 +43,75 @@ const tours=JSON.parse(fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.
             tour
            }
     });
- 
- });
- //patch request
- app.patch("/api/v1/tours/:id",(req,res)=>
- {
-    if(req.params.id>tours.length)
-    {
-        return res.status(404).json (
-            {
-                Status:"failed",
-                message:"out of range"
-            }
-        );
-         
-    }
-    res.status(200).json(
-        {
-            Status:"<updated sucessfully"
-
-        }
-    );
- });
- //delete req
- app.delete("/api/v1/tours/:id",(req,res)=>
- {
-    if(req.params.id>tours.length)
-    {
-        return res.status(404).json (
-            {
-                Status:"failed",
-                message:"out of range"
-            }
-        );
-         
-    }
-    res.status(204).json(
-        {
-            Status:"<deleted sucessfully>"
-
-        }
-    );
- });
- //handling the post requests
- app.post("/api/v1/tours",(req,res)=>
- {
-    //console.log(req.body);
-   const newid=tours[tours.length-1].id+1;
-   const newtour=Object.assign({id:newid},req.body);
-   tours.push(newtour);
-   fs.writeFile(`${__dirname}/dev-data/data/tours-simple.json`,JSON.stringify(tours),err => 
+};
+const upadteTour=(req,res)=>
+{
+   if(req.params.id>tours.length)
    {
-     res.status(201).json(
-        {
-            Status:"sucessful",
-            data:{
-               tour: newtour
-            }
-        }
-     )
-   });
-    
- }); 
+       return res.status(404).json (
+           {
+               Status:"failed",
+               message:"out of range"
+           }
+       );
+        
+   }
+   res.status(200).json(
+       {
+           Status:"<updated sucessfully"
+
+       }
+   );
+};
+const deleteTour=(req,res)=>
+{
+   if(req.params.id>tours.length)
+   {
+       return res.status(404).json (
+           {
+               Status:"failed",
+               message:"out of range"
+           }
+       );
+        
+   }
+   res.status(204).json(
+       {
+           Status:"<deleted sucessfully>"
+
+       }
+   );
+};
+const creteTour=(req,res)=>
+{
+   //console.log(req.body);
+  const newid=tours[tours.length-1].id+1;
+  const newtour=Object.assign({id:newid},req.body);
+  tours.push(newtour);
+  fs.writeFile(`${__dirname}/dev-data/data/tours-simple.json`,JSON.stringify(tours),err => 
+  {
+    res.status(201).json(
+       {
+           Status:"sucessful",
+           data:{
+              tour: newtour
+           }
+       }
+    )
+  })
+};
+
+//  app.get("/api/v1/tours",getAlltours);
+//  app.get("/api/v1/tours/:id",singletour);
+//  app.patch("/api/v1/tours/:id",upadteTour);
+//  app.delete("/api/v1/tours/:id",deleteTour);
+//  app.post("/api/v1/tours",creteTour); 
+ app.route("/api/v1/tours").
+ get(getAlltours)
+ .post(creteTour);
+ app.route("/api/v1/tours/:id").
+ patch(upadteTour).
+ get(singletour).delete(deleteTour);
 app.listen(port,()=>
 {
     console.log(`listening to the port ${port}...............`);
