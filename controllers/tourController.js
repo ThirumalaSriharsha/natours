@@ -1,5 +1,33 @@
 const fs=require("fs");
 const tours=JSON.parse(fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`));
+exports.checkId=(req,res,next,val)=>
+{ console.log(`the value of the id is ${val}`);
+    if(req.params.id*1>tours.length)
+    {
+        return res.status(404).json (
+            {
+                Status:"failed",
+                message:"out of range"
+            }
+        );
+         
+    }
+    next();
+};
+exports.checkBody=(req,res,next)=>
+{
+    console.log(" in the middle ware where we check for the data");
+    if(!req.body.name|| !req.body.price )
+    {
+        return res.status(400).json(
+            {
+                 status:"error",
+                message:"no name or price"
+            }
+        );
+    };
+next();
+};
 //route handlers for the tours
 exports. getAlltours=
 (req,res)=>
@@ -20,17 +48,6 @@ exports. getAlltours=
  exports.singletour=(req,res)=>
  {  console.log(req.params);
     const id=req.params.id*1;
-    if(id>tours.length)
-    {
-        return res.status(404).json (
-            {
-                stats:"failed",
-                message:"not valid"
-            }
-        );
-         
-    }
-
     const tour=tours.find(el=>el.id===id);
     res.status(200).json(
         {
@@ -44,16 +61,7 @@ exports. getAlltours=
 };
 exports.upadteTour=(req,res)=>
 {
-   if(req.params.id>tours.length)
-   {
-       return res.status(404).json (
-           {
-               Status:"failed",
-               message:"out of range"
-           }
-       );
-        
-   }
+   
    res.status(200).json(
        {
            Status:"<updated sucessfully"
@@ -63,16 +71,7 @@ exports.upadteTour=(req,res)=>
 };
 exports.deleteTour=(req,res)=>
 {
-   if(req.params.id>tours.length)
-   {
-       return res.status(404).json (
-           {
-               Status:"failed",
-               message:"out of range"
-           }
-       );
-        
-   }
+   
    res.status(204).json(
        {
            Status:"<deleted sucessfully>"
