@@ -20,6 +20,8 @@ app.use((req,res,next)=>
 const tours=JSON.parse(fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`)
 );
 //route handlers
+
+//route handlers for the tours
 const getAlltours=
 (req,res)=>
  { 
@@ -117,19 +119,65 @@ const creteTour=(req,res)=>
     )
   })
 };
-
-       /*app.get("/api/v1/tours",getAlltours);
-        app.get("/api/v1/tours/:id",singletour);
-        app.patch("/api/v1/tours/:id",upadteTour);
-        app.delete("/api/v1/tours/:id",deleteTour);
-     app.post("/api/v1/tours",creteTour); */
+//route handlers for the users
+const getAllUsers=(req,res)=>
+{
+    res.status(500).json({
+        Status:"error",
+        message : "the route is not yet defined"
+    })
+};
+const getOneUsers=(req,res)=>
+{
+    res.status(500).json({
+        Status:"error",
+        message : "the route is not yet defined"
+    })
+};
+const updateUsers=(req,res)=>
+{
+    res.status(500).json({
+        Status:"error",
+        message : "the route is not yet defined"
+    })
+};
+const deleteUsers=(req,res)=>
+{
+    res.status(500).json({
+        Status:"error",
+        message : "the route is not yet defined"
+    })
+};
+const createUsers=(req,res)=>
+{
+    res.status(500).json({
+        Status:"error",
+        message : "the route is not yet defined"
+    })
+};
+      
 //routes
- app.route("/api/v1/tours").
+const tourRouter=express.Router();
+const userRouter=express.Router();
+
+ tourRouter.route("/").
  get(getAlltours)
  .post(creteTour);
- app.route("/api/v1/tours/:id").
+ tourRouter.route("/:id").
  patch(upadteTour).
- get(singletour).delete(deleteTour);
+ get(singletour).
+ delete(deleteTour);
+//users routs
+ userRouter.route("/").
+ get(getAllUsers)
+ .post(createUsers);
+ userRouter.route("/:id").
+ patch(updateUsers).
+ get(getOneUsers).
+ delete(deleteUsers);
+ app.use("/api/v1/tours",tourRouter);
+ app.use("/api/v1/tours",userRouter);
+
  //server
 app.listen(port,()=>
 {
