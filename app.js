@@ -176,7 +176,7 @@ const userRouter=express.Router();
  get(getOneUsers).
  delete(deleteUsers);
  app.use("/api/v1/tours",tourRouter);
- app.use("/api/v1/tours",userRouter);
+ app.use("/api/v1/users",userRouter);
 
  //server
 app.listen(port,()=>
