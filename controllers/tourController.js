@@ -14,20 +14,20 @@ exports.checkId=(req,res,next,val)=>
     }
     next();
 };
-exports.checkBody=(req,res,next)=>
-{
-    console.log(" in the middle ware where we check for the data");
-    if(!req.body.name|| !req.body.price )
-    {
-        return res.status(400).json(
-            {
-                 status:"error",
-                message:"no name or price"
-            }
-        );
-    };
-next();
-};
+// exports.checkBody=(req,res,next)=>
+// {
+//     console.log(" in the middle ware where we check for the data");
+//     if(!req.body.name|| !req.body.price )
+//     {
+//         return res.status(400).json(
+//             {
+//                  status:"error",
+//                 message:"no name or price"
+//             }
+//         );
+//     };
+// next();
+// };
 //route handlers for the tours
 exports. getAlltours=
 (req,res)=>

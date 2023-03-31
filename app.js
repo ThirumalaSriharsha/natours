@@ -6,7 +6,12 @@ const app=express();
 const tourRouter=require(`${__dirname}/routers/tourrouter`);
 const userRouter=require(`${__dirname}/routers/userRouter`);
 //middlewares
-app.use(morgan('dev'));
+console.log(process.env.NODE_ENV);
+if(process.env.NODE_ENV=== "development")
+{
+    app.use(morgan('dev'));
+};
+
 app.use(express.json());
 app.use((req,res,next)=>
 {
