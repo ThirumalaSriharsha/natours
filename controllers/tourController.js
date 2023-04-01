@@ -1,99 +1,121 @@
-const fs=require("fs");
-const tours=JSON.parse(fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`));
-exports.checkId=(req,res,next,val)=>
-{ console.log(`the value of the id is ${val}`);
-    if(req.params.id*1>tours.length)
-    {
-        return res.status(404).json (
-            {
-                Status:"failed",
-                message:"out of range"
-            }
-        );
-         
-    }
-    next();
-};
-// exports.checkBody=(req,res,next)=>
-// {
-//     console.log(" in the middle ware where we check for the data");
-//     if(!req.body.name|| !req.body.price )
-//     {
-//         return res.status(400).json(
-//             {
-//                  status:"error",
-//                 message:"no name or price"
-//             }
-//         );
-//     };
-// next();
-// };
-//route handlers for the tours
-exports. getAlltours=
-(req,res)=>
+const Tour=require('../models/tourModel');
+exports. getAlltours=async  (req,res)=>
  { 
-    console.log(req.requesttime);
-    res.status(200).json(
-        {
-           stats:"sucessfull",
-           result:tours.length, 
-           requested_at:req.requesttime,
-           data:
-           {
-            tours
-           }
-    });
- 
+    try{
+        const Tours=await Tour.find();
+        res.status(200).json(
+            {
+               stats:"sucessfull",
+               data:
+               {
+                 Tours
+               }
+              
+        });
+     
+    }
+    catch(err)
+    {
+        res.status(404).json({
+       status: "fail",
+       message:"error 💥💥"
+        }
+    );}
+    
  };
- exports.singletour=(req,res)=>
- {  console.log(req.params);
-    const id=req.params.id*1;
-    const tour=tours.find(el=>el.id===id);
-    res.status(200).json(
+ exports.singletour= async (req,res)=>
+ {  
+    try{
+    //const objid=;
+   const tour=await Tour.findById(req.params.id);
+   res.status(200).json(
         {
             Status:"sucessfull",
-           result:tours.length,
-           data:
+                     data:
            {
             tour
            }
     });
+   
+    }
+    catch(err)
+    {
+        res.status(404).json({
+       status: "fail",
+       message:err
+        }
+    );}
+    
 };
-exports.upadteTour=(req,res)=>
+exports.upadteTour= async(req,res)=>
 {
+    try{
+     const tour = await Tour.findByIdAndUpdate(req.params.id,req.body,{
+        new:true,
+        runValidators:true
+    });
    
    res.status(200).json(
        {
-           Status:"<updated sucessfully"
-
+           Status:"sucessful",
+           data :
+           { 
+            tour
+           }
        }
-   );
-};
-exports.deleteTour=(req,res)=>
-{
-   
-   res.status(204).json(
-       {
-           Status:"<deleted sucessfully>"
-
+   );}
+   catch(err)
+   {
+       res.status(404).json({
+      status: "fail",
+      message:"error 💥💥 from the update querry"
        }
-   );
+   );}
 };
-exports.creteTour=(req,res)=>
+exports.deleteTour=async (req,res)=>
+    {
+        try{
+         const tour = await Tour.findByIdAndDelete(req.params.id);
+       
+       res.status(204).json(
+           {
+               Status:"sucessful",
+               message:"the document got deleteed"
+               }
+       );
+    }
+    catch(err)
+   {
+       res.status(404).json({
+      status: "fail",
+      message:"error 💥💥 from the Delete querry",
+      message2:err
+       }
+   );}
+
+
+};
+
+exports.creteTour=async (req,res) =>{
+try
 {
-   //console.log(req.body);
-  const newid=tours[tours.length-1].id+1;
-  const newtour=Object.assign({id:newid},req.body);
-  tours.push(newtour);
-  fs.writeFile(`${__dirname}/dev-data/data/tours-simple.json`,JSON.stringify(tours),err => 
-  {
+  const newTour= await Tour.create(req.body);  
     res.status(201).json(
        {
            Status:"sucessful",
            data:{
-              tour: newtour
+              newTour
            }
        }
-    )
-  })
-};
+    );
+ 
+} catch(err)
+{
+    res.status(400).json (
+        {
+            message:err
+        }
+    );
+}
+}
+  
