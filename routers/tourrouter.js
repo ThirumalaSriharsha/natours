@@ -3,6 +3,12 @@ const express=require('express');
 const tourController=require(`${__dirname}/../controllers/tourController`);
 const router=express.Router();
 // router.param("id",tourController.checkId);
+router.route('/top-5-cheap').
+get(
+    tourController.alliasTopTours,
+    tourController.getAlltours
+    
+    );
 router.route("/").
 get(tourController.getAlltours)
 .post(tourController.creteTour);
