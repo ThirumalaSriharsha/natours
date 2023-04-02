@@ -9,6 +9,8 @@ get(
     tourController.getAlltours
     
     );
+    router.route('/tour-stats').get(tourController.getTourStats);
+        router.route('/tour-plan/:year').get(tourController.getMonthlyPlan);
 router.route("/").
 get(tourController.getAlltours)
 .post(tourController.creteTour);
