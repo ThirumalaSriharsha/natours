@@ -1,12 +1,18 @@
 const mongoose=require('mongoose');
+const slug = require('slug');
 const tourSchema = new mongoose.Schema(
     {
         name:
         {
             type:String,
             required:[true,'a name must be given'],
-            unique:true
+            unique:true,
+            maxlength:[40,'name length should not exceed 40 chararcters'],
+            minlength:[10,'name length should not be minimum of 10 chararcters']
         },
+        slug:{
+         type:String,
+         default:'the name of the tour'},
         rating:
         {
              type : String,
@@ -29,20 +35,37 @@ const tourSchema = new mongoose.Schema(
          difficulty:
          {
             type:String,
-            required:[true,'a tour must have the difficulity']
+            required:[true,'a tour must have the difficulity'],
+            enum:
+            {
+               values:['easy','difficult','medium'],
+               message:'difficulity may be easy,difficulityor medium'
+            }
 
          },
          rattingAverage:
          {
             type:Number,
-            default:4.5
+            default:4.5,
+            min:[1,'ratting must be above 1'],
+            max:[5,'ratting must be below 5']
          },
          rattingQunatity:
          {
             type:Number,
             default: 0
          },
-         PriceDiscount:Number,
+         PriceDiscount:
+         {
+            type: Number,
+            validate: { 
+               validator:function(val)
+            {
+                  return val<this.price
+            }
+         },
+         message :'the price discount price must be lessthan given price '
+         },
          summary:
          {
             type:String,
@@ -58,7 +81,7 @@ const tourSchema = new mongoose.Schema(
          imageCover:
          {
             type:String,
-            required:[true,'a tour must have the image cover']
+            // required:[true,'a tour must have the image cover']
          },
          images:[String],
          createdAt:{
@@ -66,10 +89,17 @@ const tourSchema = new mongoose.Schema(
             default:Date.now(),
             select:false
          },
-         startDates:[String]
+         startDates:[String],
+         secerettour:
+         {
+            type:Boolean,
+            default:false
+         }
 
-    }
-    ,{
+
+    },
+    
+    {
       toJSON:{
          virtuals:true
       },
@@ -78,6 +108,42 @@ const tourSchema = new mongoose.Schema(
       }
     }
 );
+
+
+
+// docu middlewar wich runs before save and create 
+// tourSchema.pre('save', function(next)
+// {
+//     this.slug=slugify(this.name,{lower:true});
+//    console.log(this.slug);
+//   next();
+
+// }
+// );
+// tourSchema.post('save',function(doc,next){
+//    console.log('from the post middleware',doc);
+//    next();
+// })
+
+
+
+// querry middleware
+//  tourSchema.pre('find',function(next)
+ tourSchema.pre(/^find/,function(next){
+   this.find({secerettour:{$ne:true}});
+   this.start = Date.now();
+   next();
+ });
+ tourSchema.post(/^find/,function(doc,next){
+   console.log(`the time took to solve the querry is ${Date.now()-this.start} milliseconds`);
+   console.log(doc);
+   next();
+ });
+//  aggreate middleware
+tourSchema.pre('aggregate',function()
+{
+   this.pipeline().unshift({$match: {secerettour:{$ne:true}}});
+})
 tourSchema.virtual('durationinweeks').get(function () {
    return this.duration/7;
 });

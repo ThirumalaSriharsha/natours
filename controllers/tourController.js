@@ -85,7 +85,8 @@ exports.upadteTour= async(req,res)=>
    {
        res.status(404).json({
       status: "fail",
-      message:"error 💥💥 from the update querry"
+      message:"error 💥💥 from the update querry",
+      errormessage:err
        }
    );}
 };
@@ -141,7 +142,7 @@ exports.getTourStats = async (req, res) =>
     try{
     const stats = await Tour.aggregate([
         {
-          $match: { ratingsAverage : { $gte: 4.5 } }
+          $match : { ratingsAverage : { $gte: 4.5 } }
         },
         {
           $group: {
@@ -169,6 +170,7 @@ exports.getTourStats = async (req, res) =>
                     }                    
                 }
              );
+            //  console.log(this.pipeline());
           
     }
     catch(err)
@@ -241,4 +243,4 @@ exports.getMonthlyPlan = async (req,res) =>
              });
     }
 }
-  
+
