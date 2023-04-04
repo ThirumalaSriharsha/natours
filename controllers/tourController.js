@@ -1,5 +1,7 @@
 const Tour=require('../models/tourModel');
 const APIFeatures=require('./../utils/apiFeatures');
+const catchAsync=require('./../utils/catchAsync');
+const AppError=require('./../utils/appError');
 exports. alliasTopTours=(req,res,next)=>
 {
     req.query.limit=5;
@@ -8,9 +10,9 @@ exports. alliasTopTours=(req,res,next)=>
     next();
 };       
      
-exports. getAlltours=async  (req,res)=>
+exports. getAlltours=catchAsync(async  (req,res,next)=>
  { 
-    try{          
+              
          // execuite query;
         const features = new APIFeatures(Tour.find(), req.query)
       .filter()
@@ -30,21 +32,17 @@ exports. getAlltours=async  (req,res)=>
               
         });
       
-    }
-    catch(err)
-    {
-        res.status(404).json({
-       status: "fail",
-       message:err
-        }
-    );}
-    
- };
- exports.singletour= async (req,res)=>
+   
+ });
+ exports.singletour= catchAsync(async (req,res,next)=>
  {  
-    try{
-    //const objid=;
+   
+    
    const tour=await Tour.findById(req.params.id);
+   if(!tour)
+   {
+   return next(new AppError('the tour is not found with the given id',404));
+   }
    res.status(200).json(
         {
             Status:"sucessfull",
@@ -53,24 +51,20 @@ exports. getAlltours=async  (req,res)=>
             tour
            }
     });
+});
    
-    }
-    catch(err)
-    {
-        res.status(404).json({
-       status: "fail",
-       message:err
-        }
-    );}
-    
-};
-exports.upadteTour= async(req,res)=>
+
+exports.upadteTour= catchAsync(async(req,res,next)=>
 {
-    try{
+   
      const tour = await Tour.findByIdAndUpdate(req.params.id,req.body,{
         new:true,
         runValidators:true
     });
+    if(!tour)
+   {
+   return next(new AppError('the tour is not found with the given id',404));
+   }
    
    res.status(200).json(
        {
@@ -81,19 +75,16 @@ exports.upadteTour= async(req,res)=>
            }
        }
    );}
-   catch(err)
-   {
-       res.status(404).json({
-      status: "fail",
-      message:"error 💥💥 from the update querry",
-      errormessage:err
-       }
-   );}
-};
-exports.deleteTour=async (req,res)=>
+   
+);
+exports.deleteTour=catchAsync(async (req,res,next)=>
     {
-        try{
+        
          const tour = await Tour.findByIdAndDelete(req.params.id);
+         if(!tour)
+   {
+   return next(new AppError('the tour is not found with the given id',404));
+   }
        
        res.status(204).json(
            {
@@ -101,23 +92,13 @@ exports.deleteTour=async (req,res)=>
                message:"the document got deleteed"
                }
        );
-    }
-    catch(err)
-   {
-       res.status(404).json({
-      status: "fail",
-      message:"error 💥💥 from the Delete querry",
-      message2:err
-       }
-   );}
+   });
 
 
-};
 
-exports.creteTour=async (req,res) =>{
-try
-{
-  const newTour= await Tour.create(req.body);  
+
+exports.creteTour=catchAsync(async (req,res,next) =>{
+    const newTour= await Tour.create(req.body);  
     res.status(201).json(
        {
            Status:"sucessful",
@@ -126,20 +107,12 @@ try
            }
        }
     );
- 
-} catch(err)
-{
-    res.status(400).json (
-        {
-            message:err
-        }
-    );
 }
-};
+);
 
-exports.getTourStats = async (req, res) =>
+exports.getTourStats = catchAsync(async (req, res,next) =>
  {
-    try{
+   
     const stats = await Tour.aggregate([
         {
           $match : { ratingsAverage : { $gte: 4.5 } }
@@ -172,23 +145,16 @@ exports.getTourStats = async (req, res) =>
              );
             //  console.log(this.pipeline());
           
-    }
-    catch(err)
-    {
-        res.status(404).json({
-            status: "fail",
-            message:"error 💥💥 from the tour stats",
-            message2:err
-             });
+   
              
-    }
+    });
      
-}
+
  
 
-exports.getMonthlyPlan = async (req,res) =>
+exports.getMonthlyPlan = catchAsync(async (req,res,next) =>
 {
-    try{
+   
         const year= req.params.year*1;
         const plan = await Tour.aggregate([
             
@@ -233,14 +199,6 @@ exports.getMonthlyPlan = async (req,res) =>
                 }                    
             })
 
-    }
-    catch(err)
-    {
-        res.status(404).json({
-            status: "fail",
-            message:"error 💥💥 from the get monthli plan",
-            message2:err
-             });
-    }
-}
+    
+});
 

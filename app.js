@@ -3,6 +3,8 @@ const morgan = require('morgan');
 const app=express();
 const tourRouter=require(`${__dirname}/routers/tourrouter`);
 const userRouter=require(`${__dirname}/routers/userRouter`);
+const AppError=require('./utils/appError');
+const errorGlobalHandler=require('./controllers/errorcontroller');
 //middlewares
 //console.log(process.env.NODE_ENV);
 if(process.env.NODE_ENV=== "development")
@@ -10,11 +12,6 @@ if(process.env.NODE_ENV=== "development")
     app.use(morgan('dev'));
 };
 app.use(express.json());
-app.use((req,res,next)=>
-{
-    console.log("hello from the middleware👋👋👋");
-next();
-});
 app.use((req,res,next)=>
 {
     req.requesttime=new Date().toISOString();
@@ -27,16 +24,15 @@ app.use((req,res,next)=>
 
  app.all('*',(req,res,next)=>
  {
-     res.status(404).json(
-        {
-            status:"fail",
-            message:`request not drfinrd on thr server ${req.originalUrl }`
-        }
-     );
-     next();
- }
 
- );
+    // const err = new Error(`request not defind on thr server ${req.originalUrl }`);
+    // err.status='fail';
+    // err.statusCode=404;
+     next( new AppError(`request not defind on thr server ${req.originalUrl }`,404));
+ }
+  );
+   
+  app.use(errorGlobalHandler);
 
 module.exports=app;
-//test in ndb
+
