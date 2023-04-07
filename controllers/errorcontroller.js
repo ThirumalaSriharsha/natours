@@ -3,7 +3,7 @@ const AppError=require('../utils/appError');
 const handleCastError=err=>{
 
   const message=`dublicate value :x.please use another value` ;
-  // return new AppError(message,400);
+  return new AppError(message,400);
 };
 
 const handleDublicateFields=err=>{
@@ -31,6 +31,9 @@ const sendErrorDev=(err,res)=>
 }
 const sendErrorprod=(err,res)=>
 {
+  /*
+     help .........
+    sir iam getting write here  where the error is recognized as the  operational error*/
    if(err.isOperational)
   {
     res.status(err.statusCode).json(
@@ -69,10 +72,13 @@ module.exports=( (err,req,res,next) =>
       {
         console.log(process.env.NODE_ENV);
          let error = {...err};
+         //handling mongoose in valid id errors
          if(error.name ==='CastError')    
          error =handleCastError(error);
+         //handling mongoose duplication error
          if(error.code === 11000) 
-         error =handleDublicateFields(error);  
+         error =handleDublicateFields(error); 
+         //handling mongoose validation error 
          if(error.validation === 'validationError') 
          error =handleValidationError(error);  
          sendErrorprod(error,res);

@@ -9,13 +9,17 @@ get(
     tourController.getAlltours
     
     );
-    router.route('/tour-stats').get(tourController.getTourStats);
-        router.route('/tour-plan/:year').get(tourController.getMonthlyPlan);
+// routes for overview
 router.route("/").
 get(tourController.getAlltours)
 .post(tourController.creteTour);
+// routes for the id based operations
 router.route("/:id").
 patch(tourController.upadteTour).
 get(tourController.singletour).
 delete(tourController.deleteTour); 
+// routes for tour status,tour plan
+router.route('/tour-stats').get(tourController.getTourStats);
+router.route('/tour-plan/:year').get(tourController.getMonthlyPlan);
+
 module.exports = router;
