@@ -1,13 +1,28 @@
 const mongoose=require('mongoose');
 const validator=require('validator');
 const bcrypt=require('bcrypt');
+const crypto=require('crypto');
 const userSchema = new mongoose.Schema(
     {
+        passwordChangedAt: Date,
+        passwordResetToken:
+        {type: String},
+        passwordResetExpires:
+        {
+            type:Date   
+        }, 
         name:
         {
             type:String,
             required:[true,'a name must be given']       
                     
+        },
+     
+        role:
+        {
+            type:String,
+            enum:['user','guide','lead-guide','admin'],
+            default:'user'
         },
         email:
         {
@@ -25,7 +40,7 @@ const userSchema = new mongoose.Schema(
             minlength:[8,'password must  have minimum 8 charactes'],
             select:false
 
-        },
+        },        
         passwordConformation:
         {
             type: String,
@@ -41,6 +56,7 @@ const userSchema = new mongoose.Schema(
             },   select:false
             
         }
+        
 
     }
 );
@@ -60,6 +76,32 @@ userSchema.pre('save',async function(next)
 userSchema.methods.correctPassword=async function( candidatePassword ,userPassword )
 {
     return await bcrypt.compare(candidatePassword ,userPassword);
-}
+};
+
+// this is a function which is used to check wheather the password has been changed after the issue of tokeen
+userSchema.methods.changedPasswordAfter = function( JWTTimestamp)
+{
+    // need to fix this error
+    // the code is getting error : 
+    // the "this.passwordChangedAt" is defined as undefined
+    // const changedTimeStamp=parseInt(this.passwordChangedAt.getTime())/1000;
+//    console.log(this.passwordChangedAt,JWTTimestamp);
+//        if(this.passwordChangedAt) 
+//     {
+     
+//         console.log(this.passwordChangedAt,JWTTimestamp);
+//           return changedTimeStamp<JWTTimestamp    
+//  }
+        return false;
+};
+userSchema.methods.createPasswordResetToken=function()
+{
+    const resetToken=crypto.randomBytes(32).toString('hex');
+    this.passwordResetToken= crypto.createHash('sha256').update(resetToken).digest('hex');
+    console.log({resetToken},this.passwordResetToken);
+    this.passwordResetExpires=Date.now()+10*60*1000;
+    return resetToken;
+};
+
 const User= mongoose.model('User',userSchema);
 module.exports=User;

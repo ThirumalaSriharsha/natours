@@ -2,8 +2,7 @@ const AppError=require('../utils/appError');
 
 const handleCastError=err=>{
 
-  const message=`dublicate value :x.please use another value` ;
-  return new AppError(message,400);
+  return new AppError(`dublicate value :x.please use another value`,400);
 };
 
 const handleDublicateFields=err=>{
@@ -17,7 +16,15 @@ const handleValidationError=err=>{
  const errors=Object.values(err.errors).map(el=>el.message)
   const message=`invalid  input data . ${errors.join('. ')}`;
   return new AppError(message,400);
+   
 };
+ const handleJswError= () =>   {
+  return new AppError(' invalid token . pls loggin again',401);
+ }
+ const handleJswExpiredError=() =>
+ {
+  return new AppError(' sorry your token expirerd ...',401);
+ }
 const sendErrorDev=(err,res)=>
 {
   res.status(err.statusCode).json(
@@ -31,23 +38,18 @@ const sendErrorDev=(err,res)=>
 }
 const sendErrorprod=(err,res)=>
 {
-  /*
-     help .........
-    sir iam getting write here  where the error is recognized as the  operational error*/
+  
    if(err.isOperational)
   {
     res.status(err.statusCode).json(
     {
          status:err.status,
-         message:err.message,  
-         message:"from  operational"    
-        
-    })
+         message:err.message  
+          
+    });
   
-}  
-  else{
-
-    //  console.error('Error 💥',err);
+}    else{
+     console.error('Error 💥',err);
     res.status(500).json(
       {
            status:'error 💥',
@@ -57,7 +59,6 @@ const sendErrorprod=(err,res)=>
       }
       );
   }
-  console.log('is operational :',err.isOperational);
 }
 module.exports=( (err,req,res,next) =>
   { 
@@ -66,11 +67,10 @@ module.exports=( (err,req,res,next) =>
     if (process.env.NODE_ENV === 'development')
    {
      sendErrorDev(err,res);
-     console.log(process.env.NODE_ENV);
+    
       }
       else if(process.env.NODE_ENV === 'production')
       {
-        console.log(process.env.NODE_ENV);
          let error = {...err};
          //handling mongoose in valid id errors
          if(error.name ==='CastError')    
@@ -80,7 +80,13 @@ module.exports=( (err,req,res,next) =>
          error =handleDublicateFields(error); 
          //handling mongoose validation error 
          if(error.validation === 'validationError') 
-         error =handleValidationError(error);  
+         error =handleValidationError(error); 
+          //  handling jsw error
+         if(error.message='JsonWebTokenError') 
+          error=handleJswError();
+          // handling token expired error
+          if(error.message='tokenExpiredError') 
+          error=handleJswExpiredError();
          sendErrorprod(error,res);
               
       }

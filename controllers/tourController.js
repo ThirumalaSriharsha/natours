@@ -2,7 +2,7 @@ const Tour=require('../models/tourModel');
 const APIFeatures=require('./../utils/apiFeatures');
 const catchAsync=require('./../utils/catchAsync');
 const AppError=require('./../utils/appError');
-exports. alliasTopTours=(req,res,next)=>
+exports.alliasTopTours=(req,res,next)=>
 {
     req.query.limit=5;
     req.query.sort='-ratingsAverage,price';
@@ -10,11 +10,10 @@ exports. alliasTopTours=(req,res,next)=>
     next();
 };       
      
-exports. getAlltours=catchAsync(async  (req,res,next)=>
- { 
-              
-         // execuite query;
-        const features = new APIFeatures(Tour.find(), req.query)
+exports.getAlltours=catchAsync(async  (req,res,next)=>
+ {            
+     // execuite query;
+    const features = new APIFeatures(Tour.find(), req.query)
       .filter()
       .sort()
       .limitFields()
@@ -31,8 +30,7 @@ exports. getAlltours=catchAsync(async  (req,res,next)=>
                }
               
         });
-      
-   
+         
  });
  exports.singletour= catchAsync(async (req,res,next)=>
  {  
@@ -110,7 +108,7 @@ exports.creteTour=catchAsync(async (req,res,next) =>{
 }
 );
 
-exports.getTourStats = catchAsync(async (req, res,next) =>
+exports.getTourStats = catchAsync(async (req,res,next) =>
  {
    
     const stats = await Tour.aggregate([
@@ -119,8 +117,8 @@ exports.getTourStats = catchAsync(async (req, res,next) =>
         },
         {
           $group: {
-            _id: { $toUpper: '$difficulty' },
-            numTours: { $sum: 1 },
+            // _id: { $toUpper: '$difficulty' },
+            // numTours: { $sum: 1 },
             numRatings: { $sum: '$ratingsQuantity' },
             avgRating: { $avg: '$ratingsAverage' },
             avgPrice: { $avg: '$price' },

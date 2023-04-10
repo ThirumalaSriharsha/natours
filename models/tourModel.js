@@ -135,8 +135,8 @@ const tourSchema = new mongoose.Schema(
    next();
  });
  tourSchema.post(/^find/,function(doc,next){
-   console.log(`the time took to solve the querry is ${Date.now()-this.start} milliseconds`);
-   console.log(doc);
+   // console.log(`the time took to solve the querry is ${Date.now()-this.start} milliseconds`);
+   
    next();
  });
 //  aggreate middleware
