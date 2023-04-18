@@ -2,12 +2,18 @@ const mongoose=require('mongoose');
 const validator=require('validator');
 const bcrypt=require('bcrypt');
 const crypto=require('crypto');
+const rateLimt=require('express-rate-limit')
 const userSchema = new mongoose.Schema(
     {
-        passwordChangedAt: Date,
+        passwordChangedAt:
+        {
+            type:Date
+        },
         passwordResetToken:
-        {type: String},
-        passwordResetExpires:
+        {
+            type: String
+        },
+         passwordResetExpires:
         {
             type:Date   
         }, 
@@ -18,12 +24,11 @@ const userSchema = new mongoose.Schema(
                     
         },
      
-        role:
-        {
-            type:String,
-            enum:['user','guide','lead-guide','admin'],
+       role: {
+            type: String,
+            enum: ['user','guide','lead-guide','admin'],
             default:'user'
-        },
+          },
         email:
         {
             type:String,
@@ -53,11 +58,16 @@ const userSchema = new mongoose.Schema(
                 },
             
              message : 'conformed password not matching with the given password '
-            },   select:false
+            },  
+             select:false
             
+        },
+        active:
+        {
+            type:Boolean,
+            default:true,
+            select:false
         }
-        
-
     }
 );
 //run this function if password is modified
@@ -73,18 +83,35 @@ userSchema.pre('save',async function(next)
  
 }
 );
+userSchema.pre('save',function(next)
+{
+    if(this.isModified('password')||this.isNew)
+     {
+        return next();
+
+     }
+     this.passwordChangedAt=Date.now()-1000;
+     return next();
+
+});
+userSchema.pre(/^find/,function(next)
+{
+    // this refers to the qureey obj
+    this.find({active:{$ne:false }});
+    next();
+});
 userSchema.methods.correctPassword=async function( candidatePassword ,userPassword )
 {
-    return await bcrypt.compare(candidatePassword ,userPassword);
+    return await bcrypt.compare(candidatePassword,userPassword);
 };
 
 // this is a function which is used to check wheather the password has been changed after the issue of tokeen
-userSchema.methods.changedPasswordAfter = function( JWTTimestamp)
+userSchema.methods.changedPasswordAfter = function(JWTTimestamp)
 {
     // need to fix this error
     // the code is getting error : 
     // the "this.passwordChangedAt" is defined as undefined
-    // const changedTimeStamp=parseInt(this.passwordChangedAt.getTime())/1000;
+//     const changedTimeStamp=parseInt(this.passwordChangedAt.getTime())/1000;
 //    console.log(this.passwordChangedAt,JWTTimestamp);
 //        if(this.passwordChangedAt) 
 //     {
@@ -100,6 +127,7 @@ userSchema.methods.createPasswordResetToken=function()
     this.passwordResetToken= crypto.createHash('sha256').update(resetToken).digest('hex');
     console.log({resetToken},this.passwordResetToken);
     this.passwordResetExpires=Date.now()+10*60*1000;
+    console.log(this.passwordResetExpires);
     return resetToken;
 };
 

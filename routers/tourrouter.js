@@ -12,7 +12,8 @@ get(
     );
 // routes for overview
 router.route("/").
-get(authController.protect, tourController.getAlltours)
+get(authController.protect, 
+    tourController.getAlltours)
 .post(tourController.creteTour);
 // routes for the id based operations
 router.route("/:id").
