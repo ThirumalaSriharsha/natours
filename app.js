@@ -3,6 +3,7 @@ const morgan = require('morgan');
 const app=express();
 const tourRouter=require(`${__dirname}/routers/tourrouter`);
 const userRouter=require(`${__dirname}/routers/userRouter`);
+const reviewRouter=require('./routers/reviewRouter');
 const AppError=require('./utils/appError');
 const errorGlobalHandler=require('./controllers/errorcontroller');
 const rateLimit=require('express-rate-limit');
@@ -56,9 +57,8 @@ app.use((req,res,next)=>
 );
  app.use("/api/v1/tours",tourRouter);
  app.use("/api/v1/users",userRouter);
-
-
- app.all('*',(req,res,next)=>
+ app.use("/api/v1/review",reviewRouter);
+  app.all('*',(req,res,next)=>
  {
 
     // const err = new Error(`request not defind on thr server ${req.originalUrl }`);

@@ -15,6 +15,7 @@ const app=require('./app');
 const port=3000||env.process.PORT;
 // console.log(process.env);
 const db=process.env.DATABASE;
+
 mongoose.connect(db,{
     useCreateIndex:true,
     useNewUrlParser:true,

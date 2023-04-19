@@ -1,5 +1,7 @@
 const mongoose=require('mongoose');
-const slug = require('slug');
+const slugify = require('slugify');
+const User=require('./usermodel');
+const { promises } = require('nodemailer/lib/xoauth2');
 const tourSchema = new mongoose.Schema(
     {
         name:
@@ -10,9 +12,7 @@ const tourSchema = new mongoose.Schema(
             maxlength:[40,'name length should not exceed 40 chararcters'],
             minlength:[10,'name length should not be minimum of 10 chararcters']
         },
-        slug:{
-         type:String,
-         default:'the name of the tour'},
+        slug: String,
         rating:
         {
              type : String,
@@ -94,12 +94,44 @@ const tourSchema = new mongoose.Schema(
          {
             type:Boolean,
             default:false
-         }
-
-
+         },
+         startLocation:
+         {
+            // geoJSON
+            type:
+            {
+               type:String,
+               default:'Point',
+               enum:['Point']
+            },
+            coordinates:[Number],
+            address:String,
+            description:String
+         },
+  locations:[
+   {
+      // geoJSON
+      type:
+      {
+         type:String,
+         default:'Point',
+         enum:['Point']
+      },
+      coordinates:[Number],
+      address:String,
+      description:String,
+      day:Number 
+   }
+  ],
+  guides:
+  [
+   {
+      type:mongoose.Schema.ObjectId,
+      ref:'User'
+   }
+  ] ,
     },
-    
-    {
+  {
       toJSON:{
          virtuals:true
       },
@@ -112,13 +144,18 @@ const tourSchema = new mongoose.Schema(
 
 
 // docu middlewar wich runs before save and create 
-// tourSchema.pre('save', function(next)
-// {
-//     this.slug=slugify(this.name,{lower:true});
-//    console.log(this.slug);
-//   next();
+// tourSchema.pre('save', function(next) {
+//    this.slug = slugify(this.name, { lower: true });
+//    next();
+//  });
 
-// }
+// tourSchema.pre('save', async function(next)
+// {
+//    const guidesPromises = this.guides.map(async id => await User.findById(id));
+//    this.guides=await Promise.all(guidesPromises);
+//    next();
+// });
+
 // );
 // tourSchema.post('save',function(doc,next){
 //    console.log('from the post middleware',doc);
@@ -134,6 +171,16 @@ const tourSchema = new mongoose.Schema(
    this.start = Date.now();
    next();
  });
+ tourSchema.pre(/^find/,function(next)
+ {
+   this.populate (
+      {
+       path:'guides',
+       select:'-passwordChangedAt -__v'
+      }
+   );
+   next();
+ })
  tourSchema.post(/^find/,function(doc,next){
    // console.log(`the time took to solve the querry is ${Date.now()-this.start} milliseconds`);
    

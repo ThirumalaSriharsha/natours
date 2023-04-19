@@ -2,7 +2,6 @@ const mongoose=require('mongoose');
 const validator=require('validator');
 const bcrypt=require('bcrypt');
 const crypto=require('crypto');
-const rateLimt=require('express-rate-limit')
 const userSchema = new mongoose.Schema(
     {
         passwordChangedAt:
@@ -23,11 +22,10 @@ const userSchema = new mongoose.Schema(
             required:[true,'a name must be given']       
                     
         },
-     
-       role: {
+        role: {
             type: String,
-            enum: ['user','guide','lead-guide','admin'],
-            default:'user'
+            enum: ['user', 'guide', 'lead-guide', 'admin'],
+            default: 'user'
           },
         email:
         {

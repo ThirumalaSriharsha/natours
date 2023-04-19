@@ -3,10 +3,10 @@ const dotenv=require('dotenv');
 dotenv.config({ path:"./../../config.env"});
 const fs=require('fs');
 const Tour=require('../../models/tourModel');
-const tours=JSON.parse((fs.readFileSync(`${__dirname}/tours-simple.json`,'utf-8')));
+const tours=JSON.parse((fs.readFileSync(`${__dirname}/tours.json`,'utf-8')));
 const port=3000;
 // console.log(process.env);
-const db=process.env.DATABASE;
+const db='mongodb+srv://tsriharsha02:harsha@11@cluster0.zlmsxie.mongodb.net/?retryWrites=true&w=majority';
 mongoose.connect(db,{
     useCreateIndex:true,
     useNewUrlParser:true,
