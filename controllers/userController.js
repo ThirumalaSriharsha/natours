@@ -1,6 +1,7 @@
 const User=require('../models/usermodel');
 const catchAsync=require('./../utils/catchAsync');
 const AppError=require('./../utils/appError');
+const factory=require('./handlerFactory');
  
 const filterObj=(obj,...allowedFields)=>
 {
@@ -12,24 +13,11 @@ const filterObj=(obj,...allowedFields)=>
     return newObj;
 }
 
-exports.getAllUsers=catchAsync(async (req,res)=>
+exports.getMe=(req,res,next)=>
 {
-    const users = await User.find();       
-    //sending  the response
-    res.status(200).json(
-        {
-           stats:"sucessfull",
-           result:users.length,
-           data:
-           {
-             users
-           }
-          
-    }); 
-   
-  
+    req.params.id=req.user.id;
+    next();
 }
-);
 
 exports.updateMe=catchAsync(async (req,res,next)=>
 {
@@ -65,31 +53,9 @@ exports.deleteMe=catchAsync(async (req,res,next)=>
     }
    );
 });
-exports.getOneUsers=(req,res)=>
-{
-    res.status(500).json({
-        Status:"error",
-        message : "the route is not yet defined from the getoneuser method from user controllers"
-    });
-};
-exports.updateUsers=(req,res)=>
-{
-    res.status(500).json({
-        Status:"error",
-        message : "the route is not yet defined from update user"
-    });
-};
-exports.deleteUsers=(req,res)=>
-{
-    res.status(500).json({
-        Status:"error",
-        message : "the route is not yet defined from delete user"
-    });
-};
-exports. createUsers=(req,res)=>
-{
-    res.status(500).json({
-        Status:"error",
-        message : "the route is not yet defined from create user"
-    });
-};
+exports.getAllUsers=factory.getAll(User);
+exports.getOneUser=factory.getOne(User);
+// do not update passwords with this
+exports.updateUsers=factory.updateOne(User);
+exports.deleteUsers=factory.deleteOne(User);
+exports. createUsers=factory.createOne(User);

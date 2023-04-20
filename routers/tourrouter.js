@@ -2,8 +2,9 @@ const express=require('express');
 // const tours=JSON.parse(fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`));
 const tourController=require(`${__dirname}/../controllers/tourController`);
 const authController=require('./../controllers/authenticationController');
+const reviewRouter=require('./reviewRouter');
 const router=express.Router();
-// router.param("id",tourController.checkId);
+router.use('/:tourId/review',reviewRouter);
 router.route('/top-5-cheap').
 get(
     tourController.alliasTopTours,
@@ -25,5 +26,6 @@ delete(authController.protect,
 // routes for tour status,tour plan
 router.route("/tour-stats").get(tourController.getTourStats);
 router.route("/tour-plan/:year").get(tourController.getMonthlyPlan);
+
 
 module.exports = router;

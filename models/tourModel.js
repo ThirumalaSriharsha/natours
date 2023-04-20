@@ -129,7 +129,8 @@ const tourSchema = new mongoose.Schema(
       type:mongoose.Schema.ObjectId,
       ref:'User'
    }
-  ] ,
+  ] 
+  
     },
   {
       toJSON:{
@@ -164,6 +165,7 @@ const tourSchema = new mongoose.Schema(
 
 
 
+
 // querry middleware
 //  tourSchema.pre('find',function(next)
  tourSchema.pre(/^find/,function(next){
@@ -180,7 +182,7 @@ const tourSchema = new mongoose.Schema(
       }
    );
    next();
- })
+ });
  tourSchema.post(/^find/,function(doc,next){
    // console.log(`the time took to solve the querry is ${Date.now()-this.start} milliseconds`);
    
@@ -193,6 +195,13 @@ tourSchema.pre('aggregate',function()
 })
 tourSchema.virtual('durationinweeks').get(function () {
    return this.duration/7;
+});
+// virutual populate
+tourSchema.virtual('reviews',{
+  ref:'Review',
+  foreignField:'tour',
+  localField:'_id'
+
 });
 const Tour= mongoose.model('Tour',tourSchema)
 module.exports=Tour;
