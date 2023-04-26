@@ -48,7 +48,9 @@ const tourSchema = new mongoose.Schema(
             type:Number,
             default:4.5,
             min:[1,'ratting must be above 1'],
-            max:[5,'ratting must be below 5']
+            max:[5,'ratting must be below 5'],
+            set: val => Math.round(val*10)/10
+            // thw above set value is usaed to round off the decimal ex:4.66=> 4.7
          },
          rattingQunatity:
          {
@@ -143,7 +145,14 @@ const tourSchema = new mongoose.Schema(
 );
 
 
-
+// tourSchema.index({
+//    price: 1 
+// });
+tourSchema.index({
+   price: 1 ,
+   rattingAverage: -1
+});
+tourSchema.index({ startLocation:'2dsphere'});
 // docu middlewar wich runs before save and create 
 // tourSchema.pre('save', function(next) {
 //    this.slug = slugify(this.name, { lower: true });
@@ -189,10 +198,10 @@ const tourSchema = new mongoose.Schema(
    next();
  });
 //  aggreate middleware
-tourSchema.pre('aggregate',function()
-{
-   this.pipeline().unshift({$match: {secerettour:{$ne:true}}});
-})
+// tourSchema.pre('aggregate',function()
+// {
+//    this.pipeline().unshift({$match: {secerettour:{$ne:true}}});
+// });
 tourSchema.virtual('durationinweeks').get(function () {
    return this.duration/7;
 });

@@ -26,8 +26,8 @@ exports.getTourStats = catchAsync(async (req,res,next) =>
         },
         {
           $group: {
-            // _id: { $toUpper: '$difficulty' },
-            // numTours: { $sum: 1 },
+            _id: { $toUpper: '$difficulty' },
+            numTours: { $sum: 1 },
             numRatings: { $sum: '$ratingsQuantity' },
             avgRating: { $avg: '$ratingsAverage' },
             avgPrice: { $avg: '$price' },
@@ -108,4 +108,87 @@ exports.getMonthlyPlan = catchAsync(async (req,res,next) =>
 
     
 });
+
+
+// router.route('/tour-within/:distance/center/:latlon/unit/:unit',tourController.getToursWithin);  
+
+exports. getToursWithin=catchAsync (async (req,res,next)=>
+{
+    const {distance , latlon , unit}= req.params;
+    const [lat,lon] =latlon .split(',');
+    const radius=unit === 'mi'?distance/3963.2: distance/6378.1;
+    if(!lat||!lon)
+    {
+        return next(new AppError("please enter the lat or logitude of your location",400));
+    };
+
+
+     const tours = await Tour.find({startLocation:
+        {$geoWithin:{
+            $centerSphere: [[lon,lat],radius]
+        }
+     }
+    });
+
+
+    console.log(distance ,lat,lon,unit );
+    res.status(200).json({
+        status:"sucess",
+        results:tours.length,
+        data :
+        {
+            data:tours
+        }
+
+    });
+}
+);
+
+exports.getDistances=catchAsync(async (req,res,next) =>
+{
+    const { latlon , unit}= req.params;
+    const [lat,lon] =latlon .split(',');
+        if(!lat||!lon)
+    {
+        return next(new AppError("please enter the lat or logitude of your location",400));
+    };
+
+     const Multiplier = unit === 'mi' ? 0.000621371:0.001;
+    const distances=  await Tour.aggregate([
+       {
+        $geoNear: {
+            near: {
+              type: 'Point',
+              coordinates: [lon  * 1, lat * 1]
+            },
+            distanceField: 'distance',
+            distanceMultiplier:Multiplier
+
+       }       
+    },
+    {
+        $project: {
+            distance:1,
+            name:1
+        }
+    }
+
+    ]
+    );
+    console.log(distances);
+ 
+    res.status(200).json({
+        status:"sucess",
+        data :
+        {
+            data:distances
+        }
+
+    });
+
+
+
+}
+
+);
 

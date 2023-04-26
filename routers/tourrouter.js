@@ -11,21 +11,32 @@ get(
     tourController.getAlltours
     
     );
+     // routes for tour status,tour plan
+router.route("/tour-stats").get(tourController.getTourStats);
+router.route("/tour-plan/:year").
+         get(authController.protect,
+         authController.restrictTo('admin','lead-guide'),
+         tourController.getMonthlyPlan);
+
+router.route('/tour-within/:distance/center/:latlon/unit/:unit').get (tourController.getToursWithin); 
+router.route('/distance/:latlon/unit/:unit').get(tourController.getDistances);        
 // routes for overview
 router.route("/").
-get(authController.protect, 
-    tourController.getAlltours)
-.post(tourController.creteTour);
+get(tourController.getAlltours)
+.post(authController.protect,
+       authController.restrictTo('admin','lead-guide'),
+       tourController.creteTour);
 // routes for the id based operations
 router.route("/:id").
-patch(tourController.upadteTour).
+patch( 
+       authController.protect,
+       authController.restrictTo('admin','lead-guide'),
+       tourController.upadteTour).
 get(tourController.singletour).
 delete(authController.protect,
        authController.restrictTo('admin','lead-guide'), 
         tourController.deleteTour); 
-// routes for tour status,tour plan
-router.route("/tour-stats").get(tourController.getTourStats);
-router.route("/tour-plan/:year").get(tourController.getMonthlyPlan);
+
 
 
 module.exports = router;

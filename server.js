@@ -19,7 +19,7 @@ const db=process.env.DATABASE;
 mongoose.connect(db,{
     useCreateIndex:true,
     useNewUrlParser:true,
-    // userFindAndMOdify:false,
+    userFindAndMOdify:false
         
 }).then( ()=>
 {
