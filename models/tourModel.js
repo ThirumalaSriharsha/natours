@@ -13,11 +13,6 @@ const tourSchema = new mongoose.Schema(
             minlength:[10,'name length should not be minimum of 10 chararcters']
         },
         slug: String,
-        rating:
-        {
-             type : String,
-             default:4.5
-         },
          price:{
             type:Number,
             required:[true,'a tour must have the price']
@@ -43,7 +38,7 @@ const tourSchema = new mongoose.Schema(
             }
 
          },
-         rattingAverage:
+         ratingsAverage:
          {
             type:Number,
             default:4.5,
@@ -52,10 +47,11 @@ const tourSchema = new mongoose.Schema(
             set: val => Math.round(val*10)/10
             // thw above set value is usaed to round off the decimal ex:4.66=> 4.7
          },
-         rattingQunatity:
+         ratingsQuantity:
          {
             type:Number,
-            default: 0
+            default:0
+            
          },
          PriceDiscount:
          {
@@ -110,6 +106,7 @@ const tourSchema = new mongoose.Schema(
             address:String,
             description:String
          },
+         
   locations:[
    {
       // geoJSON
@@ -130,7 +127,8 @@ const tourSchema = new mongoose.Schema(
    {
       type:mongoose.Schema.ObjectId,
       ref:'User'
-   }
+   }  
+   
   ] 
   
     },
@@ -154,10 +152,10 @@ tourSchema.index({
 });
 tourSchema.index({ startLocation:'2dsphere'});
 // docu middlewar wich runs before save and create 
-// tourSchema.pre('save', function(next) {
-//    this.slug = slugify(this.name, { lower: true });
-//    next();
-//  });
+tourSchema.pre('save', function(next) {
+   this.slug = slugify(this.name, { lower: true });
+   next();
+ });
 
 // tourSchema.pre('save', async function(next)
 // {

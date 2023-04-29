@@ -1,3 +1,5 @@
+const path=require('path');
+const pug=require('pug');
 const express=require('express');
 const morgan = require('morgan');
 const app=express();
@@ -11,9 +13,13 @@ const helmet=require('helmet');
 const mongoSanitize=require('express-mongo-sanitize');
 const xss=require('xss-clean');
 const hpp=require('hpp');
-
+const cookieParser = require('cookie-parser');
+const ViewRouter=require(`${__dirname}/routers/viewRouter`);
+app.set('view engine','pug');
+app.set('views',path.join(__dirname,'views'))
 // global middlewares
-
+//  serving static files 
+app.use(express.static(path.join(__dirname,'public')));
 // set HTTP headers
   app.use(helmet());
 
@@ -31,6 +37,11 @@ const limiter=rateLimit({
 app.use('/api',limiter);
 // body parser reading data from body
 app.use(express.json({limit:'10kb'}));
+app.use(express.urlencoded({
+    extended:true,
+    limit:'10kb'
+}))
+app.use(cookieParser());
 // data sanitization aganist no sl injection
   app.use(mongoSanitize()); 
 // data sanitizatio agan ist xss 
@@ -52,9 +63,12 @@ app.use(xss());
 app.use((req,res,next)=>
 {
     req.requesttime=new Date().toISOString();
+    // console.log(req.cookies);
     next();
 }
 );
+
+ app.use("/",ViewRouter);
  app.use("/api/v1/tours",tourRouter);
  app.use("/api/v1/users",userRouter);
  app.use("/api/v1/review",reviewRouter);

@@ -7,14 +7,15 @@ const authController=require(`${__dirname}/../controllers/authenticationControll
 
 router.post('/signup',authController.signUp);
 router.post('/login',authController.login);
+router.get('/logout',authController.logout);
 router.post('/forgotpassword',authController.forgotPassword);
 router.patch('/resetpassword/:token',authController.resetPassword);
 
 router.use(authController.protect);
 
 router.patch('/updateMyPassword',authController.updatePassword);
-router.patch('/updateMe',  userController.updateMe);
-router.delete('/deleteMe',  userController.deleteMe);
+router.patch('/updateMe', userController.updateUsers);
+router.delete('/deleteMe', userController.deleteMe);
 router.get('/me',
 userController.getMe,
 userController.getOneUser);

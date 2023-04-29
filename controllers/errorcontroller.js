@@ -25,53 +25,99 @@ const handleValidationError=err=>{
  {
   return new AppError(' sorry your token expirerd ...',401);
  }
-const sendErrorDev=(err,res)=>
+const sendErrorDev=(err,req,res)=>
 {
-  res.status(err.statusCode).json(
-    {
-         status:err.status,
-         error:err,
-         message:err.message,
-         stack:err.stack
-    }
-);
-}
-const sendErrorprod=(err,res)=>
-{
-  
-   if(err.isOperational)
+  if(req.originalUrl.startsWith('/api'))
   {
-    res.status(err.statusCode).json(
-    {
-         status:err.status,
-         message:err.message  
-          
+    // for api
+    return res.status(err.statusCode).json(
+      {
+           status:err.status,
+           error:err,
+           message:err.message,
+           stack:err.stack
+      }
+  );
+  }
+
+ 
+    // render web site
+    console.log(err);
+     return res.status(err.statusCode).render('error',{
+      title:'sommething went wrong',
+      msg:err.message
+     });
+  
+ 
+}
+const sendErrorprod=(err,req,res)=>
+{
+
+  if(req.originalUrl.startsWith('/api'))
+  // a) for the api
+  {
+    if(err.isOperational)
+        {
+          // is operational 
+          return res.status(err.statusCode).json(
+            {
+                 status:err.status,
+                 error:err,
+                 message:err.message,
+                 stack:err.stack
+          }
+            );
+        
+      }   
+   
+    //  for non operational erroras
+    return res.status(err.statusCode).json(
+      {
+           status:err.status,
+           error:err,
+           message:err.message,
+           stack:err.stack
+      
     });
   
-}    else{
-     console.error('Error 💥',err);
-    res.status(500).json(
-      {
-           status:'error 💥',
-           message:'something went wrong',
-           message1:"from not  operational"    
-          
-      }
-      );
   }
-}
+  
+  // B) for the rendered web sites
+      if(err.isOperational)
+          {
+            // is operational 
+
+             return  res.status(err.statusCode).render('error',{
+              title:'sommething went wrong',
+              msg:err.message
+            });
+          
+        }    
+       return  res.status(err.statusCode).render('error',{
+          title:'sommething went wrong',
+          msg:'please try again'                   
+                
+              }
+              );
+  }
+  
+   
+
+
 module.exports=( (err,req,res,next) =>
   { 
     err.statusCode=err.statusCode||500;
     err.status=err.status||'Error';
     if (process.env.NODE_ENV === 'development')
    {
-     sendErrorDev(err,res);
+     sendErrorDev(err,req,res);
     
       }
       else if(process.env.NODE_ENV === 'production')
       {
          let error = {...err};
+         console.log(err.message);
+         error.message=err.message;
          //handling mongoose in valid id errors
          if(error.name ==='CastError')    
          error =handleCastError(error);
@@ -87,7 +133,7 @@ module.exports=( (err,req,res,next) =>
           // handling token expired error
           if(error.message='tokenExpiredError') 
           error=handleJswExpiredError();
-         sendErrorprod(error,res);
+         sendErrorprod(error,req,res);
               
       }
     }
