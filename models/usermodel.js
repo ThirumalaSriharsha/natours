@@ -22,10 +22,10 @@ const userSchema = new mongoose.Schema(
             required:[true,'a name must be given']       
                     
         },
-        role: {
-            type: String,
+        role:{
+            type:String,
             enum: ['user', 'guide', 'lead-guide', 'admin'],
-            default: 'user'
+            default:'user'
           },
         email:
         {
@@ -35,7 +35,11 @@ const userSchema = new mongoose.Schema(
             lowercase:true,
             validate: [validator.isEmail,'please enter a validate email']
         },
-        photo: [String],
+        photo:
+        {
+           type: [String],
+           default:'default.jpg'
+        } ,
         password:
         {
             type: String,

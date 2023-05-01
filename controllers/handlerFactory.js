@@ -22,9 +22,14 @@ return next(new AppError('the document is not found with the given id',404));
 });
 // updating one  the documents
 exports.updateOne=Model=>catchAsync(async(req,res,next)=>
-{
-   
-     const doc = await Model.findByIdAndUpdate(req.user.id,req.body,{
+{ 
+     
+    let id = req.params.id;
+
+      
+
+    //   console.log(id);
+     const doc = await Model.findByIdAndUpdate(id,req.body,{
         new:true,
         runValidators:true
     });

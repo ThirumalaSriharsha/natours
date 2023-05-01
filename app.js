@@ -15,6 +15,8 @@ const xss=require('xss-clean');
 const hpp=require('hpp');
 const cookieParser = require('cookie-parser');
 const ViewRouter=require(`${__dirname}/routers/viewRouter`);
+const bookingRouter=require(`${__dirname}/routers/bookingRouter`);
+
 app.set('view engine','pug');
 app.set('views',path.join(__dirname,'views'))
 // global middlewares
@@ -72,6 +74,7 @@ app.use((req,res,next)=>
  app.use("/api/v1/tours",tourRouter);
  app.use("/api/v1/users",userRouter);
  app.use("/api/v1/review",reviewRouter);
+ app.use("/api/v1/booking",bookingRouter);
   app.all('*',(req,res,next)=>
  {
 

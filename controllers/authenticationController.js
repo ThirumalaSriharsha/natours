@@ -4,10 +4,11 @@ const jwt = require('jsonwebtoken');
 const User=require('./../models/usermodel');
 const catchAsync=require('./../utils/catchAsync');
 const AppError=require('./../utils/appError');
-const sendEmail=require('./../utils/email');
+const Email=require('./../utils/email');
 const bcrypt=require('bcrypt');
 const mongoose=require('mongoose');
 const { appendFile } = require('fs');
+const { url } = require('inspector');
 const signToken=id =>
 (
     jwt.sign({id:id},process.env.JWT_SECRET,{
@@ -51,6 +52,9 @@ exports.signUp= catchAsync(async (req,res,next)=>
             passwordConformation:req.body.passwordConformation
         }
      );
+     const url =`${req.protocol}://${req.get('host')}/me`;
+     console.log(url); 
+     await new Email(newUser,url).sendWelcome();
       createSendToken(newUser,201,res);
     }
 );
@@ -196,19 +200,14 @@ exports.restrictTo = (...roles) =>
           const resetToken=user.createPasswordResetToken();
            await user.save({validateBeforeSave:false});
     //  3)send it to user email 
-            const resetURL=`${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${resetToken}`;
-            const message=`forgot your password ? submi a patch request with ypur new password amd password conformation
-           to :${resetURL}.\n if you dont forgot your password please ignore the maill`;
-           console.log(message);
-            try {
-               await sendEmail({
-                 email: user.email,
-                 subject: 'Your password reset token (valid for 10 min)',
-                 message
-               });
+    try {  
+          const resetURL=`${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${resetToken}`;
+          
+            
+              await new Email(user,resetURL).sendResettoken();
               res.status(200).json({
-                 status: 'success',
-                 Message: 'Token sent to email!'
+                 status: 'success'
+                //  Message: 'Token sent to email!'
                });
              } catch (err) {
                user.passwordResetToken = undefined;

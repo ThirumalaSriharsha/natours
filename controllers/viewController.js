@@ -3,6 +3,7 @@ const User=require('./../models/usermodel');
 const authControllers=require('./authenticationController');
 const catchAsync=require('./../utils/catchAsync');
 const AppError=require('./../utils/appError');
+const Booking=require('./../models/bookings');
 exports.getOverview=catchAsync(async(req,res,next)=>
 {
     // 1) get all the tours
@@ -93,3 +94,17 @@ exports.updateUserData=catchAsync(async (req,res,next) =>
      });
 }
 );
+exports.getMyTours = catchAsync(async (req, res, next) => {
+    // 1) Find all bookings
+    const bookings = await Booking.find({ user: req.user.id });
+  
+    // 2) Find tours with the returned IDs
+    const tourIDs = bookings.map(el => el.tour);
+    const tours = await Tour.find({ _id: { $in: tourIDs } });
+  
+    res.status(200).render('overview', {
+      title: 'My Tours',
+      tours
+    });
+  });
+  

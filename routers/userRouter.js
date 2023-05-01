@@ -2,6 +2,9 @@ const express=require('express');
 const router=express.Router();
 const userController=require(`${__dirname}/../controllers/userController`);
 const authController=require(`${__dirname}/../controllers/authenticationController`);
+
+
+
     
 //users routs
 
@@ -14,7 +17,7 @@ router.patch('/resetpassword/:token',authController.resetPassword);
 router.use(authController.protect);
 
 router.patch('/updateMyPassword',authController.updatePassword);
-router.patch('/updateMe', userController.updateUsers);
+router.patch('/updateMe',userController.uploadUserPhoto,userController.resizeUserPhoto,userController.updateMe);
 router.delete('/deleteMe', userController.deleteMe);
 router.get('/me',
 userController.getMe,
